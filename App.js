@@ -7,11 +7,13 @@ import {
   PermissionsAndroid,
   FlatList,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import {
   AugmentedFacesView,
   SceneformView,
 } from '@sceneview/react-native-sceneform';
+import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 
 const ExampleSet = [
   {title: 'Mesh', model: 'models/face.glb', texture: 'textures/face.png'},
@@ -32,13 +34,34 @@ class MyAugmentedFacesView extends Component {
       augmentedFaces: [],
     };
     this.checkPermissions = this.checkPermissions.bind(this);
+    this.checkCameraPermissionIOS = this.checkCameraPermissionIOS.bind(this);
     this.loadAssets = this.loadAssets.bind(this);
     this.augmentedFacesView = null;
   }
 
   componentDidMount() {
-    this.checkPermissions();
+    if (Platform.OS === 'android') {
+      this.checkPermissions();
+    } else {
+      this.checkCameraPermissionIOS();
+    }
   }
+
+  checkCameraPermissionIOS = async () => {
+    try {
+      const result = await check(PERMISSIONS.IOS.CAMERA);
+      if (result === RESULTS.GRANTED) {
+        this.setState({cameraPermissionGranted: true}, this.loadAssets);
+      } else {
+        const permission = await request(PERMISSIONS.IOS.CAMERA);
+        if (permission === RESULTS.GRANTED) {
+          this.setState({cameraPermissionGranted: true}, this.loadAssets);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   checkPermissions = async () => {
     const actual = await PermissionsAndroid.check(

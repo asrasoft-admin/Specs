@@ -1,3 +1,5 @@
 rootProject.name = 'my_augmented_app'
+include ':@sceneview_react-native-sceneform'
+project(':@sceneview_react-native-sceneform').projectDir = new File(rootProject.projectDir, '../node_modules/@sceneview/react-native-sceneform/android')
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'
